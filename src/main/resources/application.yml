@@ -1,13 +1,11 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   datasource:
     url: jdbc:h2:tcp://localhost/~/security
     username: sa
     password:
-
-  security:
-    user:
-      name: admin
-      password: root
 
   jpa:
     open-in-view: true
@@ -17,6 +15,9 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 1000
+
+  thymeleaf:
+    cache: false
 
 logging:
   level:

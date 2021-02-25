@@ -33,8 +33,15 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    // datasource - p6spy
+    // Datasource - p6spy
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
+
+    // ModelMapper
+    implementation 'org.modelmapper:modelmapper:2.3.9'
+
+    // thymeleaf-layout
+    implementation 'com.github.zhanhb:thymeleaf-layout-dialect:2.5.2'
+
 }
 
 test {
