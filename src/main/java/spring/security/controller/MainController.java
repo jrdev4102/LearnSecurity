@@ -16,6 +16,11 @@ public class MainController {
         return "index";
     }
 
+    @GetMapping("/join")
+    public String join(){
+        return "join";
+    }
+
     @GetMapping("/user")
     public String user() {
         return "index";

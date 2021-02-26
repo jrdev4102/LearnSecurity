@@ -8,16 +8,12 @@ spring:
     password:
 
   jpa:
-    open-in-view: true
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 1000
-
-  thymeleaf:
-    cache: false
 
 logging:
   level:

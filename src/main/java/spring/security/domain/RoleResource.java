@@ -1,14 +1,17 @@
 package spring.security.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import spring.security.domain.common.BaseTime;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
+@Builder
 @Getter @Setter
-public class RoleResource extends BaseTime {
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoleResource extends BaseTime implements Serializable {
 
     @Id @GeneratedValue
     @Column(name = "role_resource_id")

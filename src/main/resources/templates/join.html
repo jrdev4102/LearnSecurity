@@ -1,0 +1,45 @@
+<!DOCTYPE html >
+
+<html xmlns:th="http://www.thymeleaf.org"
+>
+
+<head >
+    <title >index</title >
+    <!-- common css -->
+    <!-- common scripts -->
+</head >
+
+<body >
+
+<header th:replace="fragments/header :: header" >
+    <p >this area is header</p >
+</header >
+
+<div >
+    <form action="/join" method="post" >
+        <table >
+            <tr >
+                <td >이름</td >
+                <td ><input type="text" name="name" ></td >
+            </tr >
+            <tr >
+                <td >아이디</td >
+                <td ><input type="text" name="username" ></td >
+            </tr >
+            <tr >
+                <td >비밀번호</td >
+                <td ><input type="password" password="password" ></td >
+            </tr >
+
+        </table >
+        <input type="button" value="등록" onclick="alert('준비중');">
+    </form >
+</div >
+
+<footer th:replace="fragments/footer :: footer" >
+    <p >this area is footer</p >
+</footer >
+
+</body >
+
+</html >

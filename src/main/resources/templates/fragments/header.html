@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" >
+
+<header th:fragment="header" >
+    <div >
+        <input type="button" value="SYSTEM" onclick="location.href='/sys';" />
+        <input type="button" value="ADMIN" onclick="location.href='/admin';" />
+        <input type="button" value="USER" onclick="location.href='/user';" />
+
+        <span sec:authorize="isAnonymous()" >
+            <input type="button" value="JOIN" onclick="location.href='/join';" />
+            <input type="button" value="LOGIN" onclick="location.href='/login';" />
+        </span >
+
+        <span sec:authorize="isAuthenticated()" >
+            <input type="button" value="LOGOUT" onclick="location.href='/logout';" />
+        </span >
+    </div >
+</header >
+
+</html >
