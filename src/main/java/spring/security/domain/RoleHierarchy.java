@@ -21,7 +21,7 @@ public class RoleHierarchy extends BaseTime implements Serializable {
 
     private String authority;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent", referencedColumnName = "authority")
     private RoleHierarchy parent;
 

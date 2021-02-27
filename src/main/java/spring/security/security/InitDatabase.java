@@ -98,15 +98,16 @@ public class InitDatabase {
 
             RoleHierarchy admin = RoleHierarchy.builder()
                                                .authority("ROLE_ADMIN")
-                                               .parent(roleHierarchyRepository.findById(sys.getId()).get())
+                                               .parent(sys)
                                                .build();
             roleHierarchyRepository.save(admin);
 
             RoleHierarchy user = RoleHierarchy.builder()
                                               .authority("ROLE_USER")
-                                              .parent(roleHierarchyRepository.findById(admin.getId()).get())
+                                              .parent(admin)
                                               .build();
             roleHierarchyRepository.save(user);
+
 
         }
 

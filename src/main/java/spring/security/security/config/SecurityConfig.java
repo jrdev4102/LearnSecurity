@@ -36,11 +36,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    @Autowired
-    private RoleHierarchyRepository roleHierarchyRepository;
+    private final RoleHierarchyRepository roleHierarchyRepository;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -67,32 +65,38 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .formLogin()
+                .failureUrl("/login")
                 .defaultSuccessUrl("/");
 
     }
 
     @Bean
     public RoleHierarchy roleHierarchy() {
+
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 
-        StringBuilder result = new StringBuilder("");
         List<spring.security.domain.RoleHierarchy> roles = roleHierarchyRepository.findAll();
 
+        StringBuilder result = new StringBuilder("");
         for(int i = 0; i < roles.size(); i++) {
             result.append(roles.get(i).getAuthority());
             if(i != roles.size() - 1) {
                 result.append(" > ");
             }
         }
+
         log.info("RoleHierarchy configure: " + result.toString());
         roleHierarchy.setHierarchy(result.toString());
+
         return roleHierarchy;
     }
 
     @Bean
     public SecurityExpressionHandler<FilterInvocation> expressionHandler() {
+
         DefaultWebSecurityExpressionHandler webSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
         webSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
+
         return webSecurityExpressionHandler;
     }
 
