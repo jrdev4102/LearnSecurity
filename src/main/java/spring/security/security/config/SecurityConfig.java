@@ -1,24 +1,38 @@
 package spring.security.security.config;
 
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.RoleHierarchyVoter;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import spring.security.repository.RoleHierarchyRepository;
 import spring.security.security.service.CustomUserDetailsService;
+import spring.security.security.service.SecurityResourceService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,50 +45,68 @@ import java.util.List;
  * AccessDecisionManager 에 위임하며 AccessDecisionManager 는 인증정보, 요청정보, 인가정보를 토대로 AccessDecisionVoter 에게 판단(decide)을 위임한다.
  */
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
-    private final CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private RoleHierarchyRepository roleHierarchyRepository;
 
-    private final RoleHierarchyRepository roleHierarchyRepository;
+    @Autowired
+    private SecurityResourceService securityResourceService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customUserDetailsService);
+        auth.userDetailsService(userDetailsService());
+        auth.authenticationProvider(authenticationProvider());
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+        web.ignoring()
+           .requestMatchers(
+                   PathRequest
+                           .toStaticResources()
+                           .atCommonLocations()
+                           );
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http
+                .httpBasic().disable()
+                .csrf().disable();
+
+        http
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
-                .antMatchers("/join").permitAll()
-                .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/sys/**").hasRole("SYS_ADMIN")
                 .anyRequest().authenticated()
                 .expressionHandler(expressionHandler());
 
         http
                 .formLogin()
                 .failureUrl("/login")
-                .defaultSuccessUrl("/");
+                .defaultSuccessUrl("/")
+                .permitAll();
 
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler());
+
+        http
+                .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class);
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        return accessDeniedHandler;
     }
 
     @Bean
     public RoleHierarchy roleHierarchy() {
 
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-
         List<spring.security.domain.RoleHierarchy> roles = roleHierarchyRepository.findAll();
 
         StringBuilder result = new StringBuilder("");
@@ -85,7 +117,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             }
         }
 
-        log.info("RoleHierarchy configure: " + result.toString());
+        if(log.isInfoEnabled()) {
+            log.info("RoleHierarchy configure: " + result.toString());
+        }
         roleHierarchy.setHierarchy(result.toString());
 
         return roleHierarchy;
@@ -93,11 +127,61 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public SecurityExpressionHandler<FilterInvocation> expressionHandler() {
-
         DefaultWebSecurityExpressionHandler webSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
         webSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
-
         return webSecurityExpressionHandler;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsService();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        return new CustomAuthenticationProvider();
+    }
+
+    @Bean
+    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean().getObject());
+    }
+
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
+        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
+        return urlResourcesMapFactoryBean;
+    }
+
+    private AccessDecisionManager affirmativeBased() {
+        AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecisionVoters());
+        return affirmativeBased;
+    }
+
+    private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
+        List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
+        accessDecisionVoters.add(roleVoter());
+        return accessDecisionVoters;
+    }
+
+    @Bean
+    public AccessDecisionVoter<? extends Object> roleVoter() {
+        RoleHierarchyVoter roleHierarchyVoter = new RoleHierarchyVoter(roleHierarchy());
+        return roleHierarchyVoter;
+    }
+
+    @Bean
+    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
+        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
+        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
+        return filterSecurityInterceptor;
     }
 
 }

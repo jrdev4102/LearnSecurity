@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class BaseTime implements Serializable {
+public abstract class BaseTime implements Serializable {
 
     @CreatedDate
     @Column(updatable = false)

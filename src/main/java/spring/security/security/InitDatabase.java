@@ -22,7 +22,7 @@ public class InitDatabase {
      *
      * @see @PostConstruct
      */
-    @PostConstruct
+//    @PostConstruct
     public void init() {
         initService.createAdminAndRole();
     }

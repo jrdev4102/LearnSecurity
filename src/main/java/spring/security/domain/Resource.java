@@ -3,11 +3,10 @@ package spring.security.domain;
 import lombok.*;
 import spring.security.domain.common.BaseTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Builder
