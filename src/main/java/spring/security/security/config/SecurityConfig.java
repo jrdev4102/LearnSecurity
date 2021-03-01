@@ -26,8 +26,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import spring.security.repository.RoleHierarchyRepository;
 import spring.security.security.service.CustomUserDetailsService;
 import spring.security.security.service.SecurityResourceService;
@@ -47,13 +45,19 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    //---------------------------------- Fields ----------------------------------//
+
     private final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
+    private String[] permitAllResources = {"/", "/join", "/login", "/logout"};
 
     @Autowired
     private RoleHierarchyRepository roleHierarchyRepository;
 
     @Autowired
     private SecurityResourceService securityResourceService;
+
+    //---------------------------------- Settings ----------------------------------//
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -96,6 +100,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class);
     }
+
+    //---------------------------------- Methods ----------------------------------//
+
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
+        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
+        return urlResourcesMapFactoryBean;
+    }
+
+    private AccessDecisionManager affirmativeBased() {
+        AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecisionVoters());
+        return affirmativeBased;
+    }
+
+    private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
+        List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
+        accessDecisionVoters.add(roleVoter());
+        return accessDecisionVoters;
+    }
+
+    //---------------------------------- Beans ----------------------------------//
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -149,25 +174,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
-        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean().getObject());
+        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean().getObject(), securityResourceService);
     }
 
-    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
-        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
-        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
-        return urlResourcesMapFactoryBean;
-    }
-
-    private AccessDecisionManager affirmativeBased() {
-        AffirmativeBased affirmativeBased = new AffirmativeBased(getAccessDecisionVoters());
-        return affirmativeBased;
-    }
-
-    private List<AccessDecisionVoter<?>> getAccessDecisionVoters() {
-        List<AccessDecisionVoter<? extends Object>> accessDecisionVoters = new ArrayList<>();
-        accessDecisionVoters.add(roleVoter());
-        return accessDecisionVoters;
-    }
 
     @Bean
     public AccessDecisionVoter<? extends Object> roleVoter() {
@@ -176,12 +185,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
-        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
-        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
-        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
-        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
-        return filterSecurityInterceptor;
+    public PermitAllFilter customFilterSecurityInterceptor() throws Exception {
+        PermitAllFilter permitAllFilter = new PermitAllFilter(permitAllResources);
+        permitAllFilter.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        permitAllFilter.setAccessDecisionManager(affirmativeBased());
+        permitAllFilter.setAuthenticationManager(authenticationManagerBean());
+        return permitAllFilter;
     }
 
 }

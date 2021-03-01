@@ -1,30 +1,50 @@
 package spring.security.security;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import spring.security.domain.*;
 import spring.security.repository.*;
+import spring.security.security.config.UrlFilterInvocationSecurityMetadataSource;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class InitDatabase {
+public class InitDatabase implements ApplicationListener<ContextRefreshedEvent> {
+
+    private static final Logger log = LoggerFactory.getLogger(InitDatabase.class);
+
+    private boolean alreadySetup = false;
 
     private final InitService initService;
 
-    /**
-     * WAS가 초기화 된 직후 바로 실행 될 메서드
-     *
-     * @see @PostConstruct
-     */
-//    @PostConstruct
-    public void init() {
-        initService.createAdminAndRole();
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+
+        if(log.isInfoEnabled()) {
+            log.info("onApplicationEvent start");
+        }
+
+        if(alreadySetup) {
+            return;
+        }
+
+        if(log.isInfoEnabled()) {
+            log.info("Application setup...");
+            initService.setUp();
+        }
+
+        alreadySetup = true;
+
     }
 
     @Service
@@ -41,7 +61,9 @@ public class InitDatabase {
 
         private final RoleHierarchyRepository roleHierarchyRepository;
 
-        public void createAdminAndRole() {
+        private final UrlFilterInvocationSecurityMetadataSource metadataSource;
+
+        public void setUp() {
 
             String password = PasswordEncoderFactories
                     .createDelegatingPasswordEncoder()
@@ -86,6 +108,7 @@ public class InitDatabase {
             roleResourceRepository.save(createRoleResource(roles.get("user"), rHome));
 
             createHierarchy();
+            metadataSource.reload();
 
         }
 
@@ -108,6 +131,21 @@ public class InitDatabase {
                                               .build();
             roleHierarchyRepository.save(user);
 
+            RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+            List<RoleHierarchy> roles = roleHierarchyRepository.findAll();
+
+            StringBuilder result = new StringBuilder("");
+            for(int i = 0; i < roles.size(); i++) {
+                result.append(roles.get(i).getAuthority());
+                if(i != roles.size() - 1) {
+                    result.append(" > ");
+                }
+            }
+
+            if(log.isInfoEnabled()) {
+                log.info("RoleHierarchy configure: " + result.toString());
+            }
+            roleHierarchy.setHierarchy(result.toString());
 
         }
 
