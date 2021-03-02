@@ -8,10 +8,9 @@ import java.io.Serializable;
 
 @Entity
 @Builder
-@Getter @Setter
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@ToString(exclude = "authorityId")
 public class Admin extends BaseTime implements Serializable {
 
     @Id @GeneratedValue

@@ -16,7 +16,7 @@ class AdminRepositoryTest {
 
     @Test
     @DisplayName("관리자_조회")
-    public void find() throws Exception {
+    public void findAdministrator() throws Exception {
         // Given
         String username = "sys";
 

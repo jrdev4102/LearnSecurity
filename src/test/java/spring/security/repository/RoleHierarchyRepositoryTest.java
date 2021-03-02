@@ -55,7 +55,7 @@ class RoleHierarchyRepositoryTest {
 
     @Test
     @DisplayName("권한상속_조회")
-    public void findAll() throws Exception {
+    public void findRoleHierarchy() throws Exception {
         // Given
         StringBuilder result = new StringBuilder("");
         List<RoleHierarchy> roles = roleHierarchyRepository.findAll();

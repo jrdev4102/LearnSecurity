@@ -10,8 +10,8 @@ import java.util.Set;
 
 @Entity
 @Builder
-@Getter @Setter
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class RoleHierarchy extends BaseTime implements Serializable {
 

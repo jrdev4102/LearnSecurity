@@ -19,15 +19,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SecurityResourceService {
 
     private static final Logger log = LoggerFactory.getLogger(SecurityResourceService.class);
 
-    @Autowired
-    private ResourceRepository resourceRepository;
+    private final ResourceRepository resourceRepository;
 
-    @Autowired
-    private RoleResourceRepository roleResourceRepository;
+    private final RoleResourceRepository roleResourceRepository;
 
     @Transactional
     public LinkedHashMap<RequestMatcher, List<ConfigAttribute>> getResourceList() {

@@ -11,7 +11,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final String ERROR_PAGE = "/denied";
 
-    @Override public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+    @Override
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException {
         response.sendRedirect(ERROR_PAGE);
     }
 

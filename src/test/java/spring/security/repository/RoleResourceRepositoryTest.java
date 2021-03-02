@@ -35,6 +35,7 @@ class RoleResourceRepositoryTest {
     private static final Logger log = LoggerFactory.getLogger(RoleResourceRepositoryTest.class);
 
     /**
+     * 예상되는 값 <br />
      * Ant [pattern='/']=[ROLE_SYS_ADMIN, ROLE_ADMIN, ROLE_USER], <br />
      * Ant [pattern='/user']=[ROLE_SYS_ADMIN, ROLE_ADMIN, ROLE_USER], <br />
      * Ant [pattern='/admin']=[ROLE_SYS_ADMIN, ROLE_ADMIN], <br />
@@ -43,7 +44,7 @@ class RoleResourceRepositoryTest {
      * @throws Exception
      */
     @Test
-    @DisplayName("LinkedHashMap<RequestMatcher, List<ConfigAttribute>> 생성")
+    @DisplayName("생성_LinkedHashMap<RequestMatcher, List<ConfigAttribute>>")
     public void makeUpRequestMatcher() throws Exception {
         // given
         LinkedHashMap<RequestMatcher, List<ConfigAttribute>> result = new LinkedHashMap<>();

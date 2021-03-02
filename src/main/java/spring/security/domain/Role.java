@@ -8,8 +8,8 @@ import java.io.Serializable;
 
 @Entity
 @Builder
-@Getter @Setter
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Role extends BaseTime implements Serializable {
 
