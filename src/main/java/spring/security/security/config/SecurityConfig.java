@@ -3,7 +3,6 @@ package spring.security.security.config;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDecisionManager;
@@ -50,12 +49,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //---------------------------------- Fields ----------------------------------//
 
     private final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
-
-    private String[] permitAllResources = {"/", "/join", "/login", "/logout"};
-
     private final RoleHierarchyRepository roleHierarchyRepository;
-
     private final SecurityResourceService securityResourceService;
+    private String[] permitAllResources = { "/", "/join", "/login", "/logout" };
 
     //---------------------------------- Settings ----------------------------------//
 
@@ -130,23 +126,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public RoleHierarchy roleHierarchy() {
-
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         List<spring.security.domain.RoleHierarchy> roles = roleHierarchyRepository.findAll();
-
-        StringBuilder result = new StringBuilder("");
-        for(int i = 0; i < roles.size(); i++) {
+    
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < roles.size(); i++) {
             result.append(roles.get(i).getAuthority());
-            if(i != roles.size() - 1) {
+            if (i != roles.size() - 1) {
                 result.append(" > ");
             }
         }
-
-        if(log.isInfoEnabled()) {
+    
+        if (log.isInfoEnabled()) {
             log.info("RoleHierarchy configure: " + result.toString());
         }
         roleHierarchy.setHierarchy(result.toString());
-
         return roleHierarchy;
     }
 
@@ -176,7 +170,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
         return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean().getObject(), securityResourceService);
     }
-
 
     @Bean
     public AccessDecisionVoter<? extends Object> roleVoter() {

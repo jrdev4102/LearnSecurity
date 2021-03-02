@@ -134,7 +134,7 @@ public class InitDatabase implements ApplicationListener<ContextRefreshedEvent> 
             RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
             List<RoleHierarchy> roles = roleHierarchyRepository.findAll();
 
-            StringBuilder result = new StringBuilder("");
+            StringBuilder result = new StringBuilder();
             for(int i = 0; i < roles.size(); i++) {
                 result.append(roles.get(i).getAuthority());
                 if(i != roles.size() - 1) {
