@@ -17,9 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Application 시작 시 초기 데이터 설정을 진행하고 로그를 기록하는 클래스
- */
 @Component
 @RequiredArgsConstructor
 public class InitDatabase implements ApplicationListener<ContextRefreshedEvent> {
@@ -50,9 +47,6 @@ public class InitDatabase implements ApplicationListener<ContextRefreshedEvent> 
 
     }
 
-    /**
-     * Application 시작 시 초기 데이터 설정을 정의한 클래스
-     */
     @Service
     @RequiredArgsConstructor
     static class InitService {
