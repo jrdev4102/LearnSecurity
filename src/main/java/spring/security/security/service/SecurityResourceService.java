@@ -42,11 +42,8 @@ public class SecurityResourceService {
 
             roleResourceRepository.findByResource(resource)
                                   .forEach(roleResource -> {
-
                                       configAttributes.add(new SecurityConfig(roleResource.getRole().getAuthorityId()));
-
                                       result.put(new AntPathRequestMatcher(resource.getUrl()), configAttributes);
-
                                   });
         });
 

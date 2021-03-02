@@ -1,5 +1,6 @@
 package spring.security.security.config;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * WAS 가 초기화 되며 WebSecurityConfigurer 를 구현한 클래스나 WebSecurityConfigurerAdapter 를 상속한 클래스의 설정 정보를 토대로 Spring Security 가 초기화 된다.
+ * WAS 가 초기화 되며 WebSecurityConfigurer 를 구현한 클래스나 WebSecurityConfigurerAdapter 를 상속한 클래스의 설정 정보를 토대로 Spring Security FilterChainProxy 가 초기화 된다.
  * <br /><br />
  * DelegatingFilterProxy 는 springSecurityFilterChain 이라는 이름(name)을 가진 Spring Bean 을 찾아 Spring Security 의 보안 과정을 위임한다.
  * springSecurityFilterChain 은 FilterChainProxy 의 이름이기도 하다.
  * <br /><br />
- * FilterSecurityInterceptor 는 springSecurityFilterChain 의 마지막 필터로 최종적인 인증판단을 한다. 이 판단의 관리를
+ * FilterSecurityInterceptor 는 springSecurityFilterChain 의 마지막 필터로 최종적인 인가판단을 한다. 이 판단의 관리를
  * AccessDecisionManager 에 위임하며 AccessDecisionManager 는 인증정보, 요청정보, 인가정보를 토대로 AccessDecisionVoter 에게 판단(decide)을 위임한다.
  */
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     //---------------------------------- Fields ----------------------------------//
@@ -51,11 +53,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private String[] permitAllResources = {"/", "/join", "/login", "/logout"};
 
-    @Autowired
-    private RoleHierarchyRepository roleHierarchyRepository;
+    private final RoleHierarchyRepository roleHierarchyRepository;
 
-    @Autowired
-    private SecurityResourceService securityResourceService;
+    private final SecurityResourceService securityResourceService;
 
     //---------------------------------- Settings ----------------------------------//
 
