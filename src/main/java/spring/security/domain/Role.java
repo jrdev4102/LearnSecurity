@@ -16,11 +16,11 @@ public class Role extends BaseTime implements Serializable {
     @Id @GeneratedValue
     @Column(name = "role_id")
     private Long id;
-
+    
     private String authorityId;
-
+    
     private String description;
-
+    
     private boolean deleted;
 
 }

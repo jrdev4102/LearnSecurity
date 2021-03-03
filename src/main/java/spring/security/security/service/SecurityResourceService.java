@@ -23,9 +23,7 @@ import java.util.List;
 public class SecurityResourceService {
 
     private static final Logger log = LoggerFactory.getLogger(SecurityResourceService.class);
-
     private final ResourceRepository resourceRepository;
-
     private final RoleResourceRepository roleResourceRepository;
 
     @Transactional

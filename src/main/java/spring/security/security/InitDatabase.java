@@ -22,9 +22,7 @@ import java.util.Map;
 public class InitDatabase implements ApplicationListener<ContextRefreshedEvent> {
 
     private static final Logger log = LoggerFactory.getLogger(InitDatabase.class);
-
     private boolean alreadySetup = false;
-
     private final InitService initService;
 
     @Override
@@ -52,19 +50,13 @@ public class InitDatabase implements ApplicationListener<ContextRefreshedEvent> 
     static class InitService {
 
         private final RoleRepository roleRepository;
-
         private final AdminRepository adminRepository;
-
         private final ResourceRepository resourceRepository;
-
         private final RoleResourceRepository roleResourceRepository;
-
         private final RoleHierarchyRepository roleHierarchyRepository;
-
         private final UrlFilterInvocationSecurityMetadataSource metadataSource;
 
         public void setUp() {
-
             String password = PasswordEncoderFactories
                     .createDelegatingPasswordEncoder()
                     .encode("root");

@@ -15,8 +15,7 @@ import java.util.List;
 
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private AdminRepository adminRepository;
+    @Autowired private AdminRepository adminRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

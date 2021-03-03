@@ -16,9 +16,9 @@ public class Admin extends BaseTime implements Serializable {
     @Id @GeneratedValue
     @Column(name = "admin_id")
     private Long id;
-
+    
     private String username;
-
+    
     private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
