@@ -9,7 +9,6 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,7 +25,6 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import spring.security.repository.RoleHierarchyRepository;
 import spring.security.security.service.CustomUserDetailsService;
 import spring.security.security.service.SecurityResourceService;
 
@@ -49,7 +47,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //---------------------------------- Fields ----------------------------------//
 
     private final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
-    private final RoleHierarchyRepository roleHierarchyRepository;
     private final SecurityResourceService securityResourceService;
     private String[] permitAllResources = { "/", "/join", "/login", "/logout" };
 
@@ -126,22 +123,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public RoleHierarchy roleHierarchy() {
-        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        List<spring.security.domain.RoleHierarchy> roles = roleHierarchyRepository.findAll();
-    
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < roles.size(); i++) {
-            result.append(roles.get(i).getAuthority());
-            if (i != roles.size() - 1) {
-                result.append(" > ");
-            }
-        }
-    
-        if (log.isInfoEnabled()) {
-            log.info("RoleHierarchy configure: " + result.toString());
-        }
-        roleHierarchy.setHierarchy(result.toString());
-        return roleHierarchy;
+        return securityResourceService.assembleAuthorityHierarchy();
     }
 
     @Bean
